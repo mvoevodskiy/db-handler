@@ -13,7 +13,7 @@ class DBHandler {
     config = {};
     defaults = {
         global: true,
-        globalProperty: DB,
+        globalProperty: 'DB',
         typeorm: {
             name: "default",
             type: "mysql",
@@ -24,6 +24,7 @@ class DBHandler {
             database: '',
             synchronize: true,
             // logging: 'all',
+            entityPrefix: '',
             entities: [],
         },
     };
@@ -54,6 +55,7 @@ class DBHandler {
                     this.setGlobal();
                 }).catch(error => {
                     this.#dbUp = false;
+                    console.error('DB HANDLER. DB FAILED. ERROR: ', error);
                 });
         }
     }
