@@ -34,7 +34,7 @@ class DBHandler {
     constructor(App, config) {
         this.App = App;
         this.MT = this.App.MT;
-        if (this.MT.empty(config)) {
+        if (this.MT.empty(config) || this.MT.empty(Object.keys(config))) {
             config = {
                 typeorm: this.MT.extract('db', this.App.config, {})
             };
