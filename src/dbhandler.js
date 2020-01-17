@@ -48,16 +48,16 @@ class DBHandler {
 
     async init () {
         if (!this.MT.empty(this.config.typeorm.type)) {
-            this.DB = await createConnection(this.config.typeorm)
-                .then(connection => {
-                    this.DB = connection;
-                    this.#dbUp = true;
-                    this.setGlobal();
-                }).catch(error => {
-                    this.#dbUp = false;
-                    console.error('DB HANDLER. DB FAILED. ERROR: ', error);
-                });
+            try {
+                this.DB = await createConnection(this.config.typeorm);
+                this.#dbUp = true;
+                this.setGlobal();
+            } catch (err) {
+                this.#dbUp = false;
+                console.error('DB HANDLER. DB FAILED. ERROR: ', err);
+            }
         }
+
     }
 
     setGlobal () {
