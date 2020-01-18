@@ -1,10 +1,10 @@
-const {createConnection} = require("typeorm");
+const Sequelize = require('sequelize');
 
 /** @class DBHandler
  *
  * @property {MVLoader} App
  * @property {MVTools} MT
- * @property {typeorm} DB
+ * @property {sequelize} DB
  */
 
 class DBHandler {
@@ -14,19 +14,21 @@ class DBHandler {
     defaults = {
         global: true,
         globalProperty: 'DB',
-        typeorm: {
+        sync: false,
+        sequelize: {
             name: "default",
-            type: "mysql",
+            dialect: "mysql",
             host: 'localhost',
             port: 3306,
             username: '',
             password: '',
             database: '',
             synchronize: true,
-            // logging: 'all',
+            logging: 'false',
             entityPrefix: '',
             entities: [],
         },
+        models: {},
     };
 
     DB;
@@ -36,7 +38,7 @@ class DBHandler {
         this.MT = this.App.MT;
         if (this.MT.empty(config) || this.MT.empty(Object.keys(config))) {
             config = {
-                typeorm: this.MT.extract('db', this.App.config, {})
+                sequelize: this.MT.extract('db', this.App.config, {})
             };
         }
         this.loadConfig(config);
@@ -47,11 +49,13 @@ class DBHandler {
     }
 
     async init () {
-        if (!this.MT.empty(this.config.typeorm.type)) {
+        if (!this.MT.empty(this.config.sequelize.type)) {
             try {
-                this.DB = await createConnection(this.config.typeorm);
+                this.DB = new Sequelize(this.config.sequelize);
+                this.initModels();
                 this.#dbUp = true;
                 this.setGlobal();
+                await this.sync();
             } catch (err) {
                 this.#dbUp = false;
                 console.error('DB HANDLER. DB FAILED. ERROR: ', err);
@@ -60,10 +64,27 @@ class DBHandler {
 
     }
 
+    initModels () {
+        for (let model in this.config.models) {
+            if (this.config.models.hasOwnProperty(model)) {
+                if (this.MT.isString(this.config.models[model])) {
+                    this.DB.import(this.config.models[model]);
+                } else {
+                    this.DB.define(model, this.config.models[model]);
+                }
+            }
+        }
+    }
+
     setGlobal () {
         if (this.config.global && !this.MT.empty(this.config.globalProperty)) {
             this.App[this.config.globalProperty] = this.DB;
         }
+    }
+
+    sync () {
+        return this.config.sync ? this.DB.sync() : Promise.resolve();
+
     }
 
     get available () {
