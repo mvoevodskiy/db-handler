@@ -25,8 +25,6 @@ class DBHandler {
             database: '',
             synchronize: true,
             logging: 'false',
-            entityPrefix: '',
-            entities: [],
         },
         models: {},
     };
@@ -49,7 +47,7 @@ class DBHandler {
     }
 
     async init () {
-        if (!this.MT.empty(this.config.sequelize.type)) {
+        if (!this.MT.empty(this.config.sequelize.dialect)) {
             try {
                 this.DB = new Sequelize(this.config.sequelize);
                 this.initModels();
@@ -70,7 +68,7 @@ class DBHandler {
                 if (this.MT.isString(this.config.models[model])) {
                     this.DB.import(this.config.models[model]);
                 } else {
-                    this.DB.define(model, this.config.models[model]);
+                    this.DB.define(model, this.config.models[model](Sequelize));
                 }
             }
         }
