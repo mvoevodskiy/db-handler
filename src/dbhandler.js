@@ -24,7 +24,7 @@ class DBHandler {
             password: '',
             database: '',
             synchronize: true,
-            logging: 'false',
+            logging: false,
         },
         models: {},
     };
