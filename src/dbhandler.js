@@ -68,7 +68,11 @@ class DBHandler {
                 if (this.MT.isString(this.config.models[model])) {
                     this.DB.import(this.config.models[model]);
                 } else {
-                    this.DB.define(model, this.config.models[model](Sequelize));
+                    let modelDefine = this.config.models[model](Sequelize);
+                    if (!Array.isArray(modelDefine)) {
+                        modelDefine = [modelDefine];
+                    }
+                    this.DB.define(model, ...modelDefine);
                 }
             }
         }
