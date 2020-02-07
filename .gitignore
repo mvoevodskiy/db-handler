@@ -124,3 +124,5 @@ fabric.properties
 *.iml
 out
 gen
+
+package-lock.json
