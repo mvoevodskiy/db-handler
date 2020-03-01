@@ -63,19 +63,63 @@ class DBHandler {
     }
 
     initModels () {
-        for (let model in this.config.models) {
-            if (this.config.models.hasOwnProperty(model)) {
-                if (this.MT.isString(this.config.models[model])) {
-                    this.DB.import(this.config.models[model]);
+        let allAssociations = {};
+        for (let modelName in this.config.models) {
+            if (this.config.models.hasOwnProperty(modelName)) {
+                if (this.MT.isString(this.config.models[modelName])) {
+                    this.DB.import(this.config.models[modelName]);
                 } else {
-                    let modelDefine = this.config.models[model](Sequelize);
+                    let modelDefine = this.config.models[modelName](Sequelize);
                     if (!Array.isArray(modelDefine)) {
                         modelDefine = [modelDefine];
                     }
-                    this.DB.define(model, ...modelDefine);
+                    this.DB.define(modelName, ...modelDefine);
+                    if (modelDefine[2] !== undefined) {
+                        allAssociations[modelName] = modelDefine[2];
+                    }
                 }
             }
         }
+        for (let modelName in allAssociations) {
+            if (allAssociations.hasOwnProperty(modelName)) {
+                let associations = allAssociations[modelName];
+                for (let associationType in associations) {
+                    if (associations.hasOwnProperty(associationType)) {
+                        for (let foreignModel of associations[associationType]) {
+                            let opts = {};
+                            if (typeof foreignModel === 'object') {
+                                opts = foreignModel;
+                                foreignModel = foreignModel.model;
+                            }
+                            foreignModel = this.getModel(foreignModel);
+                            delete opts.model;
+
+                            if (opts.through !== undefined) {
+                                opts.through.model = this.getModel(opts.through.model);
+                            }
+
+                            try {
+                                if (!this.MT.empty(foreignModel)) {
+                                    let association = this.DB.models[modelName][associationType](foreignModel, opts);
+                                    this.DB.models[modelName][association['associationAccessor']] = association;
+                                }
+                            } catch (e) {
+                                console.error('FAILED ADDING ASSOCIATION FOR MODEL ', modelName, '. DETAILS: ', e);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    getModel (def) {
+        if (typeof def === 'function') {
+            def = def(this);
+        } else if (this.MT.isString(def)) {
+            def = this.DB.models[def];
+        }
+        return def;
     }
 
     setGlobal () {
