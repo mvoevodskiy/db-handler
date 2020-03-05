@@ -1,5 +1,11 @@
 #mvl-db-handler
-Пакет предназначен для подключения ORM [Sequelize](https://www.npmjs.com/package/sequelize) к проектам на основе [MVLoader](https://www.npmjs.com/package/mvloader).
+Пакет предназначен для подключения ORM [Sequelize](https://www.npmjs.com/package/sequelize) к проектам на основе 
+[MVLoader](https://www.npmjs.com/package/mvloader).
+
+После инициализации создается свойство **App.DB**, в котором находится активное соединение с БД.  
+Дополнительно создается свойство **App.DB.S**, в котором находится подключенный пакет _Sequelize_. Это позволяет из любого 
+места, где доступно подключение к БД через **this.App.DB**, быстро получать доступ к служебным сущностям, 
+таким как **Op** и аналогичным. Например, ```[this.App.DB.S.Op.and]```
 
 ## Установка
 ```npm i mvl-db-handler --save```
