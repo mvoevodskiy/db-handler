@@ -50,6 +50,7 @@ class DBHandler {
         if (!this.MT.empty(this.config.sequelize.dialect)) {
             try {
                 this.DB = new Sequelize(this.config.sequelize);
+                this.DB.S = Sequelize;
                 this.initModels();
                 this.#dbUp = true;
                 this.setGlobal();
