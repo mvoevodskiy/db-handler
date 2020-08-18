@@ -130,7 +130,7 @@ class DBHandler {
     }
 
     sync () {
-        return this.config.sync ? this.DB.sync() : Promise.resolve();
+        return this.config.sync ? this.DB.sync({alter: true}) : Promise.resolve();
 
     }
 
