@@ -12,5 +12,9 @@
   "dependencies": {
     "mysql2": "^2.1.0",
     "sequelize": "^5.21.5"
+  },
+  "devDependencies": {
+    "mvloader": "^1.0.7",
+    "mvtools": "^1.0.16"
   }
 }
