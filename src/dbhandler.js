@@ -2,9 +2,10 @@ const Sequelize = require('sequelize')
 
 /** @class DBHandler
  *
- * @param {import('mvloader').MVLoader} App
- * @param {import('mvtools')} MT
- * @param {Sequelize} DB
+ * @property {import('mvloader').MVLoader} App
+ * @property {import('mvtools')} MT
+ * @property {Sequelize} DB
+ * @property {Object.<string, import('sequelize').Model>} DB.models
  */
 
 class DBHandler {
@@ -112,6 +113,10 @@ class DBHandler {
     }
   }
 
+  /**
+   * @param {string} def
+   * @return {typeof import('sequelize').Model}
+   */
   getModel (def) {
     if (typeof def === 'function') {
       def = def(this)
@@ -136,6 +141,12 @@ class DBHandler {
   }
 }
 
+/** @type {Sequelize} */
 DBHandler.Sequelize = Sequelize
+/** @type {Sequelize.Model} */
+DBHandler.Model = Sequelize.Model
+// Object.assign(DBHandler.Sequelize, { getModel: DBHandler.getModel })
+
+DBHandler.DB = {}
 
 module.exports = DBHandler
