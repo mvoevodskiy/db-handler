@@ -1,10 +1,18 @@
 const Sequelize = require('sequelize')
 
+/**
+ * @typedef mvlModel
+ * @type {Array}
+ * @property {Object.<string, string|function>} Model fields
+ * @property {Object.<string, string|Object|Array.<*>>}
+ * @property {Object.<string, Array.<Object.<string, string|Object.<string, *>>>>}
+ */
 /** @class DBHandler
  *
  * @property {import('mvloader').MVLoader} App
- * @property {import('mvtools')} MT
+ * @property {Object<import('mvtools')>} MT
  * @property {Sequelize} DB
+ * @property {Sequelize} DB.S
  * @property {Object.<string, import('sequelize').Model>} DB.models
  */
 
@@ -29,6 +37,7 @@ class DBHandler {
         synchronize: true,
         logging: false
       },
+      /** @type {Object.<string, mvlModel>} */
       models: {}
     }
 
@@ -148,5 +157,7 @@ DBHandler.Model = Sequelize.Model
 // Object.assign(DBHandler.Sequelize, { getModel: DBHandler.getModel })
 
 DBHandler.DB = {}
+/** @type {mvlModel} **/
+DBHandler.mvlModel = []
 
 module.exports = DBHandler
