@@ -72,6 +72,7 @@ class DBHandler {
 
   initModels () {
     const allAssociations = {}
+    const allScopes = {}
     for (const modelName in this.config.models) {
       if (Object.prototype.hasOwnProperty.call(this.config.models, modelName)) {
         if (this.MT.isString(this.config.models[modelName])) {
@@ -80,6 +81,10 @@ class DBHandler {
           let modelDefine = this.config.models[modelName](Sequelize)
           if (!Array.isArray(modelDefine)) {
             modelDefine = [modelDefine]
+          }
+          if (modelDefine[1] !== undefined && modelDefine[1].scopes !== undefined) {
+            allScopes[modelName] = modelDefine[1].scopes
+            delete modelDefine[1].scopes
           }
           this.DB.define(modelName, ...modelDefine)
           if (modelDefine[2] !== undefined) {
@@ -116,6 +121,24 @@ class DBHandler {
                 console.error('FAILED ADDING ASSOCIATION FOR MODEL ', modelName, '. DETAILS: ', e)
               }
             }
+          }
+        }
+      }
+    }
+    for (const modelName in allScopes) {
+      if (Object.prototype.hasOwnProperty.call(allScopes, modelName)) {
+        const scopes = allScopes[modelName]
+        for (const scope in scopes) {
+          if (Object.prototype.hasOwnProperty.call(scopes, scope)) {
+            if (scopes[scope].include !== undefined) {
+              scopes[scope].include = this.MT.makeArray(scopes[scope].include)
+              for (const include of scopes[scope].include) {
+                if (typeof include.model === 'string') {
+                  include.model = this.getModel(include.model)
+                }
+              }
+            }
+            this.DB.models[modelName].addScope(scope, scopes[scope])
           }
         }
       }
